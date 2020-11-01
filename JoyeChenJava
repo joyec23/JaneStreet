@@ -1,0 +1,117 @@
+import edu.princeton.cs.algs4.In;
+import edu.princeton.cs.algs4.Point2D;
+import edu.princeton.cs.algs4.StdOut;
+
+import java.util.HashSet;
+
+public class RobotTurtles {
+    private int direction; // direction turtle is facing
+    private Point2D location; // current location
+    // HashSet<Point2D> obstacles;
+
+    public RobotTurtles() {
+        direction = 0;  // number mod 4 representing direction
+        // 0 = north, 1 = west, 2 = south, 3 = east
+        location = new Point2D(0, 0);
+    }
+
+    // method to update turtle location
+    public void move(int steps) {
+        double x = location.x();
+        double y = location.y();
+        if (direction == 0) { // north
+            y += steps;
+        }
+        if (direction == 1) { // east
+            x -= steps;
+        }
+        if (direction == 2) { // south
+            y -= steps;
+        }
+        if (direction == 3) { // west
+            x += steps;
+        }
+        location = new Point2D(x, y);
+    }
+
+    // method returning next point turtle would move to
+    // used in checking for obstacles
+    public Point2D next() {
+        double x = location.x();
+        double y = location.y();
+        Point2D next;
+
+        if (direction == 0) {
+            next = new Point2D(x, y + 1);
+        }
+
+        else if (direction == 1) {
+            next = new Point2D(x - 1, y);
+        }
+
+        else if (direction == 2) {
+            next = new Point2D(x, y - 1);
+        }
+
+        else {
+            next = new Point2D(x + 1, y);
+        }
+
+        return next;
+    }
+
+
+    public static void main(String[] args) {
+        // read in filename
+        String filename = args[0];
+        In file = new In(filename);
+
+        int obstacles = file.readInt();
+        // StdOut.println(obstacles);
+        int commandNum = file.readInt();
+        // StdOut.println(commandNum);
+        Point2D origin = new Point2D(0, 0);
+
+        RobotTurtles turtle = new RobotTurtles();
+        double maxDist = 0;
+
+        // store obstacles in a hashset
+        HashSet<Point2D> isObstacle = new HashSet<>();
+        for (int i = 0; i < obstacles; i++) {
+            Point2D point = new Point2D(file.readInt(), file.readInt());
+            isObstacle.add(point);
+        }
+
+        // run through list of commands
+        for (int i = 0; i < 2 * commandNum; i++) {
+            char command = file.readChar(); // read in the next character
+            StdOut.println(command);
+            if (command == 'M') {
+                // read in number of steps to take
+                int steps = file.readInt();
+                StdOut.println(steps);
+
+                // check if next step is an obstacle and move turtle
+                if (!isObstacle.contains(turtle.next())) {
+                    turtle.move(steps);
+                }
+                // StdOut.println(turtle.location.toString());
+            }
+            else if (command == 'L') { // turtle turns left
+                turtle.direction = (turtle.direction + 1) % 4;
+            }
+
+            else if (command == 'R') { // turtle turns right
+                turtle.direction = (turtle.direction - 1) % 4;
+            }
+
+            double tempDist = turtle.location.distanceTo(origin);
+            if (tempDist > maxDist) {
+                maxDist = tempDist;
+                // StdOut.println(maxDist);
+            }
+        }
+        System.out.println("Maximum distance: " + maxDist);
+    }
+
+}
